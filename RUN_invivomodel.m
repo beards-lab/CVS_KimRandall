@@ -11,7 +11,7 @@ clear all
 %% Flags 
 
 % Print output figures from model 
-printoutfigs_on = 1; % 0 - off; 1 - on 
+printoutfigs_on = 0; % 0 - off; 1 - on 
 
 % Plot intermediate figures for debugging steady-state behavior 
 plotintfigs_on = 0; % 0 - off; 1 - on
@@ -36,7 +36,7 @@ data.gpars.ODE_TOL = ODE_TOL;
 
 outputs = model_sol(adjpars,data); 
 
-venttable = makeventtable(outputs,data)
+outputtable = makeoutputtable(outputs,data)
 
 %% Plot
 

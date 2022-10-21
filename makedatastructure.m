@@ -53,6 +53,7 @@ function [data] = makedatastructure
     P_PA_m = 14; 
     
     %% Set fraction of unstressed volume in the compartments 
+    
     bvd_SA = .7; 
     bvd_PA = .4;
     bvd_SV = .9;

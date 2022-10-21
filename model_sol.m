@@ -336,10 +336,10 @@ function [outputs,rout,J] = model_sol(adjpars,data)
     stresses.total.sigma_RV  = o(27,:)';
     
     % Convert m^3 s^(-1) to L min^(-1)
-    flows.Q_m_valve = o(28,:)' * 1e-3 * 60; 
-    flows.Q_a_valve = o(29,:)' * 1e-3 * 60; 
-    flows.Q_t_valve = o(30,:)' * 1e-3 * 60; 
-    flows.Q_p_valve = o(31,:)' * 1e-3 * 60; 
+    flows.Q_m = o(28,:)' * 1e-3 * 60; 
+    flows.Q_a = o(29,:)' * 1e-3 * 60; 
+    flows.Q_t = o(30,:)' * 1e-3 * 60; 
+    flows.Q_p = o(31,:)' * 1e-3 * 60; 
     
     flows.Q_SA = o(32,:)' * 1e-3 * 60; 
     flows.Q_PA = o(33,:)' * 1e-3 * 60; 
@@ -348,7 +348,7 @@ function [outputs,rout,J] = model_sol(adjpars,data)
     tensions.Tm_SEP = o(35,:)'; 
     tensions.Tm_RV  = o(36,:)'; 
 
-    activation.y_v = o(37,:)'; 
+    activation.Y = o(37,:)'; 
     
     outputs.volumes       = volumes; 
     outputs.pressures     = pressures; 

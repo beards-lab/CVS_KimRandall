@@ -18,7 +18,6 @@ function f = triseg(x,adjpars,data,init)
     
     %% Unpack data structure 
 
-    HR = data.HR; 
     fixpars = data.fixpars;
 
     %% Adjustable parameters 
@@ -50,24 +49,7 @@ function f = triseg(x,adjpars,data,init)
     Vw_SEP = fixpars(23); 
     Vw_RV  = fixpars(24); 
 
-    %% Assign passive stress steepness parameter (dimensionless) 
-
-    if isfield(data,'exvivo_on')
-        gamma = adjpars(19); 
-    else 
-        gamma = fixpars(25); 
-    end 
-    
-    if isfield(data,'eta_LVDD')
-        eta_LVDD = data.eta_LVDD; 
-    else 
-        eta_LVDD = 1; 
-    end 
-    if isfield(data,'eta_RVDD')
-        eta_RVDD = data.eta_RVDD; 
-    else 
-        eta_RVDD = 1; 
-    end 
+    gamma = fixpars(25);
 
     %% Variables 
     
@@ -89,21 +71,9 @@ function f = triseg(x,adjpars,data,init)
     V_LV = init(8); 
     V_RV = init(9);
     
-    %% Activation function 
+    %% Activation function (in end-diastole)
     
-    T = 60/HR; 
-    TS = k_TS * T; 
-    TR = k_TR * T; 
-    
-    t = 0; 
-    tc_v = mod(t,T);
-    if tc_v >= 0 && tc_v < TS 
-        y_v = 0.5*(1 - cos(pi*tc_v/TS)); 
-    elseif tc_v >= TS && tc_v < TR + TS 
-        y_v = 0.5*(1 + cos(pi*(tc_v - TS)/TR)); 
-    else
-        y_v = 0; 
-    end  
+    Y = 0; 
     
     %% Heart and sarcomere model 
     
@@ -138,14 +108,14 @@ function f = triseg(x,adjpars,data,init)
     Ls_RV  = Lsref * exp(eps_RV); 
     
     % Passive stress (kPa) 
-    sigma_pas_LV  =  k_pas_LV * (Ls_LV - Lsc0)^(gamma * eta_LVDD); 
-    sigma_pas_SEP =  k_pas_LV * (Ls_SEP - Lsc0)^(gamma*eta_LVDD); 
-    sigma_pas_RV  =  k_pas_RV * (Ls_RV - Lsc0)^(gamma*eta_RVDD); 
+    sigma_pas_LV  =  k_pas_LV * (Ls_LV - Lsc0)^gamma; 
+    sigma_pas_SEP =  k_pas_LV * (Ls_SEP - Lsc0)^gamma; 
+    sigma_pas_RV  =  k_pas_RV * (Ls_RV - Lsc0)^gamma; 
     
     % Active stress (kPa)
-    sigma_act_LV  = k_act_LV * y_v  * (Lsc_LV  - Lsc0) * (Ls_LV  - Lsc_LV)  / Lse_iso; 
-    sigma_act_SEP = k_act_LV * y_v  * (Lsc_SEP - Lsc0) * (Ls_SEP - Lsc_SEP) / Lse_iso;
-    sigma_act_RV  = k_act_RV * y_v  * (Lsc_RV  - Lsc0) * (Ls_RV  - Lsc_RV)  / Lse_iso;
+    sigma_act_LV  = k_act_LV * Y * (Lsc_LV  - Lsc0) * (Ls_LV  - Lsc_LV)  / Lse_iso; 
+    sigma_act_SEP = k_act_LV * Y * (Lsc_SEP - Lsc0) * (Ls_SEP - Lsc_SEP) / Lse_iso;
+    sigma_act_RV  = k_act_RV * Y * (Lsc_RV  - Lsc0) * (Ls_RV  - Lsc_RV)  / Lse_iso;
     
     % Total stress (kPa)
     sigma_LV  = sigma_act_LV  + sigma_pas_LV; 

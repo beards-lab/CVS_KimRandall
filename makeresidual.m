@@ -35,13 +35,13 @@ function [rout] = makeresidual(outputs,data)
     P_SA = outputs.pressures.P_SA; 
     P_PA = outputs.pressures.P_PA;
 
-    Q_a_valve = outputs.flows.Q_a_valve;
+    Q_a = outputs.flows.Q_a;
 
     %% Calculate metrics 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Cardiac output (L min^(-1))
-    CO_model = trapz(time/60,Q_a_valve)/(time(end)/60 - time(1)/60); 
+    CO_model = trapz(time/60,Q_a)/(time(end)/60 - time(1)/60); 
     rout_c1 = (CO_model - CO_data)/CO_data; 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

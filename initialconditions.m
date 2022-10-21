@@ -14,13 +14,6 @@ function init = initialconditions(pars,data)
     %} 
 
     %% Fixed parameters 
-    
-    % Check to see if running volume loading experiment 
-    if isfield(data,'eta_Vtot')
-        eta_Vtot = data.eta_Vtot; 
-    else    
-        eta_Vtot = 1; 
-    end 
 
     fixpars = data.fixpars; 
     
@@ -58,12 +51,12 @@ function init = initialconditions(pars,data)
     Lsc_RV_0  = 2;
     
     % Volumes (mL)                          8 - 13 
-    V_LV_0 = eta_Vtot*P_LV_m / E_LV_m;
-    V_RV_0 = eta_Vtot*P_RV_m / E_RV_m;
-    V_SA_0 = eta_Vtot*C_SA * P_SA_m;  
-    V_SV_0 = eta_Vtot*C_SV * P_SV_m;  
-    V_PA_0 = eta_Vtot*C_PA * P_PA_m;  
-    V_PV_0 = eta_Vtot*C_PV * P_PV_m;   
+    V_LV_0 = P_LV_m / E_LV_m;
+    V_RV_0 = P_RV_m / E_RV_m;
+    V_SA_0 = C_SA * P_SA_m;  
+    V_SV_0 = C_SV * P_SV_m;  
+    V_PA_0 = C_PA * P_PA_m;  
+    V_PV_0 = C_PV * P_PV_m;   
     
     % Create initial conditions vector 
     init = [xm_LV_0; xm_SEP_0; xm_RV_0; ym_0;               % 1-4

@@ -35,16 +35,9 @@ function [adjpars,UB,LB,data] = parameters(data)
     %% Volumes
     
     % Blood volume distribution values - sum total = 1.0 
-    d_LV = .025;            d_RV = .025;
-    d_SA = .2;             d_PA = .05; 
-    d_SV = .6;              d_PV = .1;
-    d_sum_LV = d_PV + d_LV;
-    d_sum_RV = d_SV + d_RV;
-    
-    d_LV = EDV_LV / Vtot; 
-    d_RV = EDV_RV / Vtot;
-    d_PV = d_sum_LV - d_LV;
-    d_SV = d_sum_RV - d_RV;
+    d_LV = .025;             d_RV = .025;
+    d_SA = .15;              d_PA = .05; 
+    d_SV = .55;              d_PV = .2;
 
     % Total chamber volumes 
     V_LV_0 = d_LV*Vtot;      V_RV_0 = d_RV*Vtot; 
@@ -66,15 +59,15 @@ function [adjpars,UB,LB,data] = parameters(data)
     %% Pressures
     
     % General max and min chamber pressures from Boron
-    % LV           % SA           % SV
-    P_LV_M = 125;  P_SA_M = 120;   P_SV_M = 6;
-                   P_SA_bar = 95;  P_SV_bar = 5; 
-    P_LV_m = 4;    P_SA_m = 80;    P_SV_m = 4;
+    % LV            % SA                % SV
+    P_LV_M = 125;   P_SA_M   = 120;     P_SV_M = 6;
+                    P_SA_bar = 95;      P_SV_bar = 4; 
+    P_LV_m = 1;     P_SA_m   = 80;      P_SV_m = 1;
                                                 
-    % RV           % PA           % PV
-    P_RV_M = 26;    P_PA_M = 25;    P_PV_M = 6; 
-                    P_PA_bar = 15;  P_PV_bar = 4; 
-    P_RV_m = 1;     P_PA_m = 10;    P_PV_m = 2; 
+    % RV            % PA                % PV
+    P_RV_M = 26;    P_PA_M = 20;        P_PV_M = 8; 
+                    P_PA_bar = 15;      P_PV_bar = 4; 
+    P_RV_m = 1;     P_PA_m = 10;        P_PV_m = 2; 
     
     % Scale pressures to max and min SA pressures 
     q_LV_M = P_LV_M/P_SA_M;    q_LV_m = P_LV_m/P_SA_m; 
@@ -85,8 +78,8 @@ function [adjpars,UB,LB,data] = parameters(data)
     q_PV_M = P_PV_M/P_SA_M;    q_PV_m = P_PV_m/P_SA_m; 
     
     % Scale chamber pressures to the mean SBP and DBP from the data     
-    P_LV_M = ESP_LV;          P_LV_m = EDP_LV;       
-    P_RV_M = ESP_RV;          P_RV_m = EDP_RV;   
+    P_LV_M = q_LV_M*SPbar;    P_LV_m = q_LV_m*DPbar;       
+    P_RV_M = q_RV_M*SPbar;    P_RV_m = q_RV_m*DPbar;   
     P_SA_M = q_SA_M*SPbar;    P_SA_m = q_SA_m*DPbar;       
     P_SV_M = q_SV_M*SPbar;    P_SV_m = q_SV_m*DPbar;
     P_PA_M = q_PA_M*SPbar;    P_PA_m = q_PA_m*DPbar;       
@@ -107,17 +100,18 @@ function [adjpars,UB,LB,data] = parameters(data)
     %% Resistances 
 
     % Arteriolar resistances (mmHg s mL^(-1)) 
-    R_SA = (P_SA_bar - P_SV_bar)/CO;  % Systemic resistance
-    R_PA = (P_PA_bar - P_PV_bar)/CO;  % Pulmonary resistance
+    R_SA = (P_SA_M - P_SV_M)/CO;  % Systemic resistance
+    R_PA = (P_PA_M - P_PV_M)/CO;  % Pulmonary resistance
     
     % Transmural resistances (mmHg s mL^(-1))
-    R_tSA = 0.03; % orig 0.05
+    R_tSA = 0.08; % orig 0.05
+    R_tPA = 0.02; 
     
     % Valve (vlv) resistances (mmHg s mL^(-1)) 
-    R_m_vlv = 1e-2; 
-    R_a_vlv = 1e-4; 
-    R_t_vlv = 2e-3; 
-    R_p_vlv = 1e-4; 
+    R_m = 2e-2; 
+    R_a = 1e-4; 
+    R_t = 4e-3; 
+    R_p = 1e-4; 
     
     %% Heart model parameters 
     
@@ -127,7 +121,7 @@ function [adjpars,UB,LB,data] = parameters(data)
     Lse_iso = 0.04; 
     
     % Sarcomere length shortening velocity (µm s^(-1))
-    v_max   = 7;    
+    v_max   = .5*7;    
     
     % Passive stress steepness parameter  
     gamma = 7.5; % optimized from ex vivo model 
@@ -135,8 +129,8 @@ function [adjpars,UB,LB,data] = parameters(data)
     %% Time-varying elastance model parameters 
     
     % Percentage of cardiac cycle 
-    k_TS = 0.2; % Beginning of cardiac cycle to maximal systole  
-    k_TR = 0.2; % Relaxation time fraction 
+    k_TS = 0.3; % Beginning of cardiac cycle to maximal systole  
+    k_TR = 0.3; % Relaxation time fraction 
     
     %% Calculate patient-specific reference midwall surface area (Amref) for LV, SEP, and RV
     
@@ -303,11 +297,11 @@ function [adjpars,UB,LB,data] = parameters(data)
     Ls_RV_s  = Lsref * exp(eps_RV_s); 
     
     % Activation function 
-    y_v = .6; % set to 1 in systole 
+    Y = .6; % set to 1 in systole 
     
     % Active stress 
-    sigma_act_LV_s = y_v * (Ls_LV_s  - Lsc0); 
-    sigma_act_RV_s = y_v * (Ls_RV_s  - Lsc0); 
+    sigma_act_LV_s = Y * (Ls_LV_s  - Lsc0); 
+    sigma_act_RV_s = Y * (Ls_RV_s  - Lsc0); 
     
     % Dimensionless combination function 
     Gamma_LV_s = - (2 / 3) * z_LV_s * (1 + (1 / 3) * z_LV_s^2 + (1 / 5) * z_LV_s^4);
@@ -321,13 +315,13 @@ function [adjpars,UB,LB,data] = parameters(data)
     %% Pericardium parameters
     
     Vh0 = 1.25*(EDV_LV + EDV_RV); % (mL)
-    s = 10; 
+    s   = 10; 
     
     %% Outputs
     
     adjpars = [C_SA; C_SV; C_PA; C_PV;                      % 1-4
-        R_SA; R_tSA; R_PA;                                  % 5-7
-        R_m_vlv; R_a_vlv; R_t_vlv; R_p_vlv;                 % 8-11
+        R_SA; R_tSA; R_PA; R_tPA;                           % 5-7
+        R_m; R_a; R_t; R_p;                 % 8-11
         Vh0; s;                                             % 12-13
         k_pas_LV; k_pas_RV; k_act_LV; k_act_RV;             % 14-17
         ]; 

@@ -13,8 +13,8 @@ function [] = plot_invivomodel(outputs,data)
     P_SV = outputs.pressures.P_SV;  P_PV = outputs.pressures.P_PV; 
     
     % Flows (L min^(-1))
-    Q_m_valve = outputs.flows.Q_m_valve;    Q_t_valve = outputs.flows.Q_t_valve; 
-    Q_a_valve = outputs.flows.Q_a_valve;    Q_p_valve = outputs.flows.Q_p_valve; 
+    Q_m = outputs.flows.Q_m;        Q_t = outputs.flows.Q_t; 
+    Q_a = outputs.flows.Q_a;        Q_p = outputs.flows.Q_p; 
     
     % Sarcomere lengths (um) 
     Lsc_LV  = outputs.lengths.Lsc_LV; 
@@ -24,25 +24,19 @@ function [] = plot_invivomodel(outputs,data)
     % Septal curvature (cm^{-1}) 
     Cm_SEP = outputs.curvatures.Cm_SEP; 
 
-    y_v = outputs.activation.y_v; 
+    Y = outputs.activation.Y; 
 
     %% Unpack data structure 
 
     SPbar = data.SPbar; 
     DPbar = data.DPbar;
 
-    printoutfigs_on = data.printoutfigs_on; 
-    
-    %% Make EDPVR Klotz curve 
-    
-    V_EDPVR = [10:300]; 
-    [EDV, EDP] = getEDESvals(outputs); 
-    [P_LV_EDPVR,P_RV_EDPVR] = makeKlotzcurve(EDV,EDP,V_EDPVR); 
+    printoutfigs_on = data.printoutfigs_on;
 
     %% Find times for end-systole and end-diastole 
 
-    i_ES = find(diff(Q_m_valve) > 0,1,'first'); 
-    i_ED = find(diff(Q_a_valve) > 0,1,'first'); 
+    i_ES = find(diff(Q_m) > 0,1,'first'); 
+    i_ED = find(diff(Q_a) > 0,1,'first'); 
     
     ES = outputs.time(i_ES); 
     ED = outputs.time(i_ED); 
@@ -58,8 +52,6 @@ function [] = plot_invivomodel(outputs,data)
     hold on 
     h1 = plot(V_LV, P_LV, 'r','linewidth',2);
     h2 = plot(V_RV, P_RV, 'b','linewidth',2);
-    plot(V_EDPVR,P_LV_EDPVR,'r')
-    plot(V_EDPVR,P_RV_EDPVR,'b')
     xlabel('Volume (mL)')
     ylabel('Pressure (mmHg)')
     legend([h1 h2],'LV','RV')
@@ -90,11 +82,11 @@ function [] = plot_invivomodel(outputs,data)
     hfig3 = figure(3);
     clf 
     hold on
-    plot(time,P_LV,'r','linewidth',2)
-    plot(time,P_SA,'color',purple,'linewidth',2)
     yline(data.SPbar,':')
     yline(data.DPbar,':')
-    legend('P_{LV}','P_{SA}','orientation','horizontal')
+    h1 = plot(time,P_LV,'r','linewidth',2);
+    h2 = plot(time,P_SA,'color',purple,'linewidth',2);
+    legend([h1 h2],'P_{LV}','P_{SA}','orientation','horizontal')
     xlabel('Time (s)')
     ylabel('Pressure (mmHg)')
     
@@ -124,11 +116,11 @@ function [] = plot_invivomodel(outputs,data)
     hfig5 = figure(5); 
     clf
     hold on 
-    plot(time,V_LV,'r','linewidth',2)
-    plot(time,V_RV,'b','linewidth',2)
     yline(data.EDV_LV,':')
     yline(data.ESV_LV,':')
-    legend('LV','RV','orientation','horizontal')
+    h1 = plot(time,V_LV,'r','linewidth',2);
+    h2 = plot(time,V_RV,'b','linewidth',2);
+    legend([h1, h2],'LV','RV','orientation','horizontal')
     xlabel('Time (s)')
     ylabel('Volume (mmHg)')
     set(gca,'FontSize',20)
@@ -150,10 +142,10 @@ function [] = plot_invivomodel(outputs,data)
     hfig6 = figure(6); 
     clf
     hold on 
-    plot(time,Q_t_valve,'b','linewidth',2)
-    plot(time,Q_p_valve,'b--','linewidth',2)
-    plot(time,Q_a_valve,'r--','linewidth',2)
-    plot(time,Q_m_valve,'r','linewidth',2)
+    plot(time,Q_t,'b','linewidth',2)
+    plot(time,Q_p,'b--','linewidth',2)
+    plot(time,Q_a,'r--','linewidth',2)
+    plot(time,Q_m,'r','linewidth',2)
     legend('Q_{t}','Q_{p}','Q_{a}','Q_{m}')
     xlabel('Time (s)')
     ylabel('Flow (L min^{-1})')
@@ -176,32 +168,31 @@ function [] = plot_invivomodel(outputs,data)
     % Activation function 
     hfig8 = figure(8); 
     clf
-    plot(time,y_v,'k','linewidth',3)
-    set(gca,'FontSize',20)
-    xlabel('Time (s)')
-    ylabel('Y(t)')
-    title('Cardiac Activation')
-
+    hold on 
     xline(ES,':')
     xline(ES+data.T,':')
     xline(ED,'--')
     xline(ED+data.T,'--')
+    plot(time,Y,'k','linewidth',3)
+    set(gca,'FontSize',20)
+    xlabel('Time (s)')
+    ylabel('Y(t)')
+    title('Cardiac Activation')
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Septal curvature 
     hfig9 = figure(9); 
     clf
     hold on
+    xline(ES,':')
+    xline(ES+data.T,':')
+    xline(ED,'--')
+    xline(ED+data.T,'--')
     plot(time,Cm_SEP,'k','linewidth',2) 
     ylabel('Septal Curvature (cm^{-1})')
     xlabel('Time (s)')
     set(gca,'FontSize',20)
     ylim([0 .5])
-
-    xline(ES,':')
-    xline(ES+data.T,':')
-    xline(ED,'--')
-    xline(ED+data.T,'--')
 
 
     %% Print figures

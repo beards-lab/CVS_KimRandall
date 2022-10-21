@@ -1,4 +1,4 @@
-function venttable = makeventtable(outputs,data)
+function outputtable = makeoutputtable(outputs,data)
 
     %{ 
 
@@ -10,7 +10,7 @@ function venttable = makeventtable(outputs,data)
     data        - input data structure with data and global parameters 
 
     Outputs: 
-    venttable   - table with calculated metrics for both ventricles. 
+    outputtable - table with calculated metrics for both ventricles. 
 
     %}
 
@@ -31,8 +31,8 @@ function venttable = makeventtable(outputs,data)
     P_RV = outputs.pressures.P_RV; 
     
     % Flows (L min^(-1))
-    Q_a_valve = outputs.flows.Q_a_valve;    
-    Q_p_valve = outputs.flows.Q_p_valve; 
+    Q_a = outputs.flows.Q_a;    
+    Q_p = outputs.flows.Q_p; 
 
     %% Calculate ventricular metrics from model outputs 
 
@@ -45,8 +45,8 @@ function venttable = makeventtable(outputs,data)
     EF_RV = SV_RV / max(V_RV);
     
     % Cardiac output (L min^(-1)) 
-    CO_LV = trapz(time/60,Q_a_valve)/(time(end)/60 - time(1)/60); %SV * HR_end * 1e-3 
-    CO_RV = trapz(time/60,Q_p_valve)/(time(end)/60 - time(1)/60); %SV * HR_end * 1e-3 
+    CO_LV = trapz(time/60,Q_a)/(time(end)/60 - time(1)/60); %SV * HR_end * 1e-3 
+    CO_RV = trapz(time/60,Q_p)/(time(end)/60 - time(1)/60); %SV * HR_end * 1e-3 
     
     % Cardiac power (W)  
     CP_LV = trapz(P_LV,V_LV) / 7.5 * 1e-3 * HR/60; %mean(P_sa(beat)) / 7.5 * 1e3 * SV * 1e-6 * HR_end/60  
@@ -65,7 +65,7 @@ function venttable = makeventtable(outputs,data)
 
     [EDV, EDP, ESV, ESP] = getEDESvals(outputs); 
 
-    venttable = table(Vent,SV,EF,CO,CP,EDP,EDV,ESP,ESV);
+    outputtable = table(Vent,SV,EF,CO,CP,EDP,EDV,ESP,ESV);
 
 end 
 
